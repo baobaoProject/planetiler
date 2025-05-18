@@ -1,7 +1,5 @@
 package com.onthegomap.planetiler.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.onthegomap.planetiler.Profile;
 import com.onthegomap.planetiler.archive.TileArchiveConfig;
 import com.onthegomap.planetiler.archive.TileArchiveMetadata;
@@ -10,36 +8,39 @@ import com.onthegomap.planetiler.config.Arguments;
 import com.onthegomap.planetiler.config.PlanetilerConfig;
 import com.onthegomap.planetiler.geo.TileOrder;
 import com.onthegomap.planetiler.pmtiles.WriteablePmtiles;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import vector_tile.VectorTileProto;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalLong;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import vector_tile.VectorTileProto;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CompareArchivesTest {
   @TempDir
   Path path;
   PlanetilerConfig config = PlanetilerConfig.defaults();
   byte[] tile1 = VectorTileProto.Tile.newBuilder().addLayers(
-    VectorTileProto.Tile.Layer.newBuilder()
-      .setVersion(2)
-      .setName("layer1")
-      .addKeys("key1")
-      .addValues(VectorTileProto.Tile.Value.newBuilder().setStringValue("value1"))
-      .addFeatures(VectorTileProto.Tile.Feature.newBuilder().setId(1)))
+      VectorTileProto.Tile.Layer.newBuilder()
+        .setVersion(2)
+        .setName("layer1")
+        .addKeys("key1")
+        .addValues(VectorTileProto.Tile.Value.newBuilder().setStringValue("value1"))
+        .addFeatures(VectorTileProto.Tile.Feature.newBuilder().setId(1)))
     .build()
     .toByteArray();
 
   byte[] tile2 = VectorTileProto.Tile.newBuilder().addLayers(
-    VectorTileProto.Tile.Layer.newBuilder()
-      .setVersion(2)
-      .setName("layer1")
-      .addKeys("key1")
-      .addValues(VectorTileProto.Tile.Value.newBuilder().setStringValue("value2"))
-      .addFeatures(VectorTileProto.Tile.Feature.newBuilder().setId(2)))
+      VectorTileProto.Tile.Layer.newBuilder()
+        .setVersion(2)
+        .setName("layer1")
+        .addKeys("key1")
+        .addValues(VectorTileProto.Tile.Value.newBuilder().setStringValue("value2"))
+        .addFeatures(VectorTileProto.Tile.Feature.newBuilder().setId(2)))
     .build()
     .toByteArray();
 
@@ -80,17 +81,17 @@ class CompareArchivesTest {
     );
     assertEquals(new CompareArchives.Result(
       5, 4, List.of(
-        "pmtiles header"
-      ), Map.of(
-        "archive 2 missing tile", 1L,
-        "archive 1 missing tile", 2L,
-        "different contents", 1L
-      ), Map.of(
-        "layer1", Map.of(
-          "values list unique values", 1L,
-          "feature ids", 1L
-        )
+      "pmtiles header"
+    ), Map.of(
+      "archive 2 missing tile", 1L,
+      "archive 1 missing tile", 2L,
+      "different contents", 1L
+    ), Map.of(
+      "layer1", Map.of(
+        "values list unique values", 1L,
+        "feature ids", 1L
       )
+    )
     ), result);
   }
 
@@ -136,19 +137,19 @@ class CompareArchivesTest {
     );
     assertEquals(new CompareArchives.Result(
       5, 4, List.of(
-        "metadata",
-        "pmtiles header",
-        "tile compression"
-      ), Map.of(
-        "archive 2 missing tile", 1L,
-        "archive 1 missing tile", 2L,
-        "different decompressed contents", 1L
-      ), Map.of(
-        "layer1", Map.of(
-          "values list unique values", 1L,
-          "feature ids", 1L
-        )
+      "metadata",
+      "pmtiles header",
+      "tile compression"
+    ), Map.of(
+      "archive 2 missing tile", 1L,
+      "archive 1 missing tile", 2L,
+      "different decompressed contents", 1L
+    ), Map.of(
+      "layer1", Map.of(
+        "values list unique values", 1L,
+        "feature ids", 1L
       )
+    )
     ), result);
   }
 

@@ -18,41 +18,31 @@
  ****************************************************************/
 package com.onthegomap.planetiler;
 
-import static com.onthegomap.planetiler.TestUtils.*;
-import static com.onthegomap.planetiler.VectorTile.zigZagEncode;
-import static com.onthegomap.planetiler.geo.GeoUtils.JTS_FACTORY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
-
 import com.google.common.primitives.Ints;
 import com.onthegomap.planetiler.geo.GeoUtils;
 import com.onthegomap.planetiler.geo.GeometryException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateXY;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.util.AffineTransformation;
 import org.locationtech.jts.geom.util.NoninvertibleTransformationException;
 import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import vector_tile.VectorTileProto;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static com.onthegomap.planetiler.TestUtils.*;
+import static com.onthegomap.planetiler.VectorTile.zigZagEncode;
+import static com.onthegomap.planetiler.geo.GeoUtils.JTS_FACTORY;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
  * This class is copied from
@@ -110,7 +100,7 @@ class VectorTileTest {
   }
 
   private static VectorTile.Feature newVectorTileFeature(String layer, Geometry geom,
-    Map<String, Object> attrs) {
+                                                         Map<String, Object> attrs) {
     return new VectorTile.Feature(layer, 1, VectorTile.encodeGeometry(geom), attrs);
   }
 
@@ -467,58 +457,58 @@ class VectorTileTest {
     var scaleUp = AffineTransformation.scaleInstance(256d / 4096, 256d / 4096);
     var scaleDown = scaleUp.getInverse();
     return Stream.of(
-      newPoint(0, 0),
-      newPoint(0.25, -0.25),
-      newPoint(1.25, 1.25),
-      newPoint(1.5, 1.5),
-      newMultiPoint(
+        newPoint(0, 0),
+        newPoint(0.25, -0.25),
         newPoint(1.25, 1.25),
-        newPoint(1.5, 1.5)
-      ),
-      newLineString(0, 0, 1.2, 1.2),
-      newLineString(0, 0, 0.1, 0.1),
-      newLineString(0, 0, 1, 1, 1.2, 1.2, 2, 2),
-      newLineString(8000, 8000, 8000, 8001, 8001, 8001),
-      newLineString(-4000, -4000, -4000, -4001, -4001, -4001),
-      newMultiLineString(
-        newLineString(0, 0, 1, 1),
-        newLineString(1.1, 1.1, 2, 2)
-      ),
-      newMultiLineString(
+        newPoint(1.5, 1.5),
+        newMultiPoint(
+          newPoint(1.25, 1.25),
+          newPoint(1.5, 1.5)
+        ),
+        newLineString(0, 0, 1.2, 1.2),
         newLineString(0, 0, 0.1, 0.1),
-        newLineString(1.1, 1.1, 2, 2)
-      ),
-      newMultiLineString(
-        newLineString(-10, -10, -9, -9),
-        newLineString(0, 0, 0.1, 0.1),
-        newLineString(1.1, 1.1, 2, 2)
-      ),
-      newPolygon(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
-      newPolygon(0, 0, 0.1, 0, 0.1, 0.1, 0, 0.1, 0, 0),
-      newPolygon(0, 0, 1, 0, 1, 0.1, 1, 1, 0, 1, 0, 0),
-      newMultiPolygon(
+        newLineString(0, 0, 1, 1, 1.2, 1.2, 2, 2),
+        newLineString(8000, 8000, 8000, 8001, 8001, 8001),
+        newLineString(-4000, -4000, -4000, -4001, -4001, -4001),
+        newMultiLineString(
+          newLineString(0, 0, 1, 1),
+          newLineString(1.1, 1.1, 2, 2)
+        ),
+        newMultiLineString(
+          newLineString(0, 0, 0.1, 0.1),
+          newLineString(1.1, 1.1, 2, 2)
+        ),
+        newMultiLineString(
+          newLineString(-10, -10, -9, -9),
+          newLineString(0, 0, 0.1, 0.1),
+          newLineString(1.1, 1.1, 2, 2)
+        ),
         newPolygon(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
-        newPolygon(0, 0, -1, 0, -1, -1, 0, -1, 0, 0)
-      ),
-      newPolygon(0, 0, 1, 0, 1, 1, 0, 1, 0, 0.1, 0, 0)
-    ).map(scaleUp::transform)
+        newPolygon(0, 0, 0.1, 0, 0.1, 0.1, 0, 0.1, 0, 0),
+        newPolygon(0, 0, 1, 0, 1, 0.1, 1, 1, 0, 1, 0, 0),
+        newMultiPolygon(
+          newPolygon(0, 0, 1, 0, 1, 1, 0, 1, 0, 0),
+          newPolygon(0, 0, -1, 0, -1, -1, 0, -1, 0, 0)
+        ),
+        newPolygon(0, 0, 1, 0, 1, 1, 0, 1, 0, 0.1, 0, 0)
+      ).map(scaleUp::transform)
       .flatMap(geometry -> scales.stream().flatMap(scale -> Stream.of(
-        dynamicTest(scaleDown.transform(geometry) + " scale: " + scale, () -> {
-          PrecisionModel pm = new PrecisionModel((4096 << scale) / 256d);
-          assertSameGeometry(
-            GeometryPrecisionReducer.reduce(geometry, pm),
-            VectorTile.encodeGeometry(geometry, scale).decode()
-          );
-        }),
-        dynamicTest(scaleDown.transform(geometry) + " unscale: " + scale, () -> {
-          PrecisionModel pm = new PrecisionModel((4096 << scale) / 256d);
-          PrecisionModel pm0 = new PrecisionModel(4096d / 256);
-          assertSameGeometry(
-            GeometryPrecisionReducer.reduce(GeometryPrecisionReducer.reduce(geometry, pm), pm0),
-            VectorTile.encodeGeometry(geometry, scale).unscale().decode()
-          );
-        })
-      )
+          dynamicTest(scaleDown.transform(geometry) + " scale: " + scale, () -> {
+            PrecisionModel pm = new PrecisionModel((4096 << scale) / 256d);
+            assertSameGeometry(
+              GeometryPrecisionReducer.reduce(geometry, pm),
+              VectorTile.encodeGeometry(geometry, scale).decode()
+            );
+          }),
+          dynamicTest(scaleDown.transform(geometry) + " unscale: " + scale, () -> {
+            PrecisionModel pm = new PrecisionModel((4096 << scale) / 256d);
+            PrecisionModel pm0 = new PrecisionModel(4096d / 256);
+            assertSameGeometry(
+              GeometryPrecisionReducer.reduce(GeometryPrecisionReducer.reduce(geometry, pm), pm0),
+              VectorTile.encodeGeometry(geometry, scale).unscale().decode()
+            );
+          })
+        )
       ));
   }
 
@@ -597,7 +587,8 @@ class VectorTileTest {
 
   @TestFactory
   Stream<DynamicTest> testCountInternalGeometries() {
-    record Case(int expected, Geometry geom) {}
+    record Case(int expected, Geometry geom) {
+    }
     return Stream.of(
       new Case(1, newPoint(0, 0)),
       new Case(2, newMultiPoint(newPoint(0, 0), newPoint(0, 1))),

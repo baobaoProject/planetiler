@@ -29,37 +29,19 @@ import com.onthegomap.planetiler.geo.MutableCoordinateSequence;
 import com.onthegomap.planetiler.reader.WithTags;
 import com.onthegomap.planetiler.util.Hilbert;
 import com.onthegomap.planetiler.util.LayerAttrStats;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import net.jcip.annotations.NotThreadSafe;
 import org.locationtech.jts.algorithm.Orientation;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateXY;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.Puntal;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vector_tile.VectorTileProto;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Encodes a single output tile containing JTS {@link Geometry} features into the compact binary Mapbox Vector Tile
@@ -229,7 +211,7 @@ public class VectorTile {
             .formatted(i);
           assert geomType != GeometryType.POINT ||
             (length * 2 + 1 == geometryCount) : "Invalid multipoint: int[%d] length=%d".formatted(geometryCount,
-              length);
+            length);
         }
 
         if (length > 0) {
@@ -720,7 +702,9 @@ public class VectorTile {
       overallY = y;
     }
 
-    /** Returns the merged multi-geometry. */
+    /**
+     * Returns the merged multi-geometry.
+     */
     public VectorGeometry finish() {
       // set the correct "move to" length for multipoints based on how many points were actually added
       if (geometryType == GeometryType.POINT) {
@@ -800,12 +784,16 @@ public class VectorTile {
       }
     }
 
-    /** Converts an encoded geometry back to a JTS geometry. */
+    /**
+     * Converts an encoded geometry back to a JTS geometry.
+     */
     public Geometry decode() throws GeometryException {
       return decodeCommands(geomType, commands, scale);
     }
 
-    /** Returns this encoded geometry, scaled back to 0, so it is safe to emit to archive output. */
+    /**
+     * Returns this encoded geometry, scaled back to 0, so it is safe to emit to archive output.
+     */
     public VectorGeometry unscale() {
       return scale == 0 ? this : new VectorGeometry(VectorTile.unscale(commands, scale, geomType), geomType, 0);
     }
@@ -842,7 +830,9 @@ public class VectorTile {
         " (" + geomType.asByte() + ")]";
     }
 
-    /** Returns true if the encoded geometry is a polygon fill. */
+    /**
+     * Returns true if the encoded geometry is a polygon fill.
+     */
     public boolean isFill() {
       return isFillOrEdge(false);
     }
@@ -930,7 +920,9 @@ public class VectorTile {
       return visitedEnoughSides(allowEdges, visited);
     }
 
-    /** Returns true if there are no commands in this geometry. */
+    /**
+     * Returns true if there are no commands in this geometry.
+     */
     public boolean isEmpty() {
       return commands.length == 0;
     }
@@ -1086,7 +1078,9 @@ public class VectorTile {
       );
     }
 
-    /** Returns a copy of this feature with {@code extraAttrs} added to {@code attrs}. */
+    /**
+     * Returns a copy of this feature with {@code extraAttrs} added to {@code attrs}.
+     */
     public Feature copyWithExtraAttrs(Map<String, Object> extraAttrs) {
       return new Feature(
         layer,
@@ -1098,7 +1092,9 @@ public class VectorTile {
       );
     }
 
-    /** @deprecated use {@link #tags()} instead. */
+    /**
+     * @deprecated use {@link #tags()} instead.
+     */
     @Deprecated(forRemoval = true)
     public Map<String, Object> attrs() {
       return tags;
@@ -1268,7 +1264,9 @@ public class VectorTile {
       return new ArrayList<>(values.keySet());
     }
 
-    /** Returns the ID associated with {@code key} or adds a new one if not present. */
+    /**
+     * Returns the ID associated with {@code key} or adds a new one if not present.
+     */
     Integer key(String key) {
       Integer i = keys.get(key);
       if (i == null) {
@@ -1278,7 +1276,9 @@ public class VectorTile {
       return i;
     }
 
-    /** Returns the ID associated with {@code value} or adds a new one if not present. */
+    /**
+     * Returns the ID associated with {@code value} or adds a new one if not present.
+     */
     Integer value(Object value) {
       Integer i = values.get(value);
       if (i == null) {

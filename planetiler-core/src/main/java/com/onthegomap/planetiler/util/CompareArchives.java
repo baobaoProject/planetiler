@@ -16,26 +16,23 @@ import com.onthegomap.planetiler.stats.ProgressLoggers;
 import com.onthegomap.planetiler.stats.Stats;
 import com.onthegomap.planetiler.worker.Worker;
 import com.onthegomap.planetiler.worker.WorkerPipeline;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vector_tile.VectorTileProto;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 /**
  * Compares the contents of two tile archives.
@@ -66,7 +63,7 @@ public class CompareArchives {
    * @throws FatalComparisonFailure if a comparison failure is encountered that prevents comparing the whole archives.
    */
   public static Result compare(TileArchiveConfig archiveConfig1, TileArchiveConfig archiveConfig2,
-    PlanetilerConfig config, boolean verbose) {
+                               PlanetilerConfig config, boolean verbose) {
     return new CompareArchives(archiveConfig1, archiveConfig2, verbose).getResult(config);
   }
 
@@ -154,7 +151,8 @@ public class CompareArchives {
     var stats = config.arguments().getStats();
     var total = new AtomicLong(0);
     var diffs = new AtomicLong(0);
-    record Diff(Tile a, Tile b) {}
+    record Diff(Tile a, Tile b) {
+    }
     var pipeline = WorkerPipeline.start("compare", stats)
       .<Diff>fromGenerator("enumerate", next -> {
         try (
@@ -336,14 +334,14 @@ public class CompareArchives {
   }
 
   private void compareFeature(TileCoord coord, String layer, VectorTileProto.Tile.Feature feature1,
-    VectorTileProto.Tile.Feature feature2) {
+                              VectorTileProto.Tile.Feature feature2) {
     compareValues(coord, layer, "feature id", feature1.getId(), feature2.getId());
     compareGeometry(coord, layer, feature1, feature2);
     compareValues(coord, layer, "feature tags", feature1.getTagsCount(), feature2.getTagsCount());
   }
 
   private void compareGeometry(TileCoord coord, String layer, VectorTileProto.Tile.Feature feature1,
-    VectorTileProto.Tile.Feature feature2) {
+                               VectorTileProto.Tile.Feature feature2) {
     if (compareValues(coord, layer, "feature type", feature1.getType(), feature2.getType())) {
       var geomType = feature1.getType();
       if (!compareValues(coord, layer, "feature " + geomType.toString().toLowerCase() + " geometry commands",
@@ -461,5 +459,6 @@ public class CompareArchives {
     List<String> archiveDiffs,
     Map<String, Long> tileDiffTypes,
     Map<String, Map<String, Long>> tileDiffsByLayer
-  ) {}
+  ) {
+  }
 }
